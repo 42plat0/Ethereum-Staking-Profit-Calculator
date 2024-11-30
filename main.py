@@ -2,12 +2,11 @@ import datetime
 import csv
 from dateutil.relativedelta import relativedelta
 
-from staking_calculator import staking_calculator
 
 # DEFINITIONS
 ETH_INVESTED = 10
 STAKING_REWARD = 7 # %
-START_DATE = datetime.date.fromisoformat('2020-11-10')
+START_DATE = datetime.date.fromisoformat('2020-11-20')
 DURATION_MONTHS = 24
 REWARD_DAY = 15
 TO_REINVEST = True
@@ -53,14 +52,15 @@ def get_month_day_diff(curr_date, end_date, reward_day):
 
 i = 0
 while True:
-    if curr_date >= END_DATE:
+    print(curr_date)
+    if curr_date == END_DATE:
         break
 
     days_till_reward = get_month_day_diff(curr_date,END_DATE, REWARD_DAY)
-    
-    ###### DONE
-    reward_amount = (STAKING_REWARD / 100) / 365 * 1 * ETH_INVESTED
 
+    ###### DONE
+    # is it 1.9178082191780822e-05 on first day?
+    reward_amount = (STAKING_REWARD / 100) / 365 * 1 * ETH_INVESTED
 
     reward_amount *= days_till_reward
     total_reward_amount += reward_amount
@@ -86,7 +86,7 @@ while True:
 
 # write to csv
 
-file_path = "data.csv"
+file_path = "data_not_obj.csv"
 
 with open(file_path, "w", newline="", encoding="utf-8") as output_file:
     csv_separator = ","
