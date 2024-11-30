@@ -1,9 +1,12 @@
 from dateutil.relativedelta import relativedelta
-import datetime
+from datetime import date, timedelta
 import csv
 
+from typing import TypeVar
+from numbers import Number
+
 class EthereumStakingCalculator():
-    def __init__(self, eth_stake_amount, stake_reward_prc, start_date, duration_months, reward_payment_day, reinvest_reward):
+    def __init__(self, eth_stake_amount: Number, stake_reward_prc: Number, start_date: date, duration_months: int, reward_payment_day: int, reinvest_reward: bool) -> None:
         self.eth_stake_amount = eth_stake_amount
         self.stake_reward_prc = stake_reward_prc / 100
         self.start_date = start_date
@@ -15,25 +18,23 @@ class EthereumStakingCalculator():
         self.__set_active_date()
         self.__set_reward_tracking()
         self.__set_daily_reward_rate()
-        self.__set_staking_end_indicator(False)
 
-    def __set_reward_tracking(self):
+        self.__calculate_profit_schedule()
+
+    def __set_reward_tracking(self) -> None:
         self.reward_records = []
         self.reward_amount, self.total_reward_amount = (0, 0)
 
-    def __set_daily_reward_rate(self):
+    def __set_daily_reward_rate(self) -> None:
         self.daily_reward_rate = (self.stake_reward_prc) / 365 * self.eth_stake_amount
 
-    def __set_end_date(self):
+    def __set_end_date(self) -> None:
         self.end_date = self.start_date + relativedelta(months=self.duration_months)
     
-    def __set_active_date(self):
+    def __set_active_date(self) -> None:
         self.active_date = self.start_date
-    
-    def __set_staking_end_indicator(self, is_end_of_staking):
-        self.end_staking = is_end_of_staking
 
-    def __set_days_to_next_reward_payment(self):
+    def __set_days_to_next_reward_payment(self) -> None:
         # When reward day is on the same month as start date
         # By default will create next date in same month
         year = self.active_date.year
@@ -47,34 +48,43 @@ class EthereumStakingCalculator():
         elif not self.active_date.day < self.reward_payment_day:
             month += 1
 
-        reward_upcoming_date = datetime.date(year, month, self.reward_payment_day)
+        reward_upcoming_date = date(year, month, self.reward_payment_day)
         
         self.days_to_next_reward_payment = (reward_upcoming_date - self.active_date).days
     
-    def adjust_reward_payment_days(self):
+    def __adjust_reward_payment_days(self) -> None:
         # Adjust next reward days when start date day is not on reward day
         # Because we'd run past staking end day
         # e.g. start date day is higher/lower than reward day 
         self.days_to_next_reward_payment = (self.end_date - self.active_date).days
 
-        # As we have to adjust days to next reward payment
-        # We have reached the end of staking
-        self.__set_staking_end_indicator(True)
 
-    def is_final_staking_period(self):
+    def __is_final_staking_period(self) -> bool:
         # Days till reward payment day is less than a month = final staking period
         return (self.end_date - self.active_date).days < 28
 
-    def calculate_profit_schedule(self):
-        line = 0
+    def __get_reward_record(self, current_line: int, reward_amount: Number) -> dict:
+        # Create dict for each reward payout
+        # To avoid key/value count misallignment if we stored keys and values in separate lists
+        return {
+                "Line #": current_line,
+                "Reward Date": self.active_date, 
+                "Investment Amount": round(self.eth_stake_amount, 6),
+                "Current Month Reward Amount": round(reward_amount, 6),
+                "Total Reward Amount To Date": round(self.total_reward_amount, 6),
+                "Staking Reward Rate": f"{self.stake_reward_prc:.2f}%"
+            }
+
+    def __calculate_profit_schedule(self) -> None:
+        current_line = 1
         while True:
             self.__set_days_to_next_reward_payment()
-
-            if self.is_final_staking_period():
-                self.adjust_reward_payment_days()
-
-            if self.end_staking:
+            
+            if self.active_date == self.end_date:
                 break
+
+            if self.__is_final_staking_period():
+                self.__adjust_reward_payment_days()
 
             reward_amount = self.daily_reward_rate * self.days_to_next_reward_payment
 
@@ -82,18 +92,9 @@ class EthereumStakingCalculator():
 
             # Change active date to upcoming reward date 
             # Because we already calculated rewards for current date
-            self.active_date += datetime.timedelta(days=self.days_to_next_reward_payment)
+            self.active_date += timedelta(days=self.days_to_next_reward_payment)
 
-            # Create dict for each reward payout
-            # To avoid key/value count misallignment if we stored keys and values in separate lists
-            reward = {
-                "Line #": line+1,
-                "Reward Date": self.active_date, 
-                "Investment Amount": round(self.eth_stake_amount, 6),
-                "Current Month Reward Amount": round(reward_amount, 6),
-                "Total Reward Amount To Date": round(self.total_reward_amount, 6),
-                "Staking Reward Rate": f"{self.stake_reward_prc:.2f}%"
-            }
+            reward = self.__get_reward_record(current_line, reward_amount)
 
             # Save records which later will be written to CSV
             self.reward_records.append(reward)
@@ -105,15 +106,14 @@ class EthereumStakingCalculator():
                 # Because it changes when reinvesting the reward
                 self.__set_daily_reward_rate()
             
-            line += 1
+            current_line += 1
     
-    def get_staking_log(self):
-        self.calculate_profit_schedule()
+    def get_staking_log(self) -> list[dict]:
         return self.reward_records
 
 ETH_INVESTED = 10
 STAKING_REWARD = 7 # %
-START_DATE = datetime.date.fromisoformat('2020-11-20')
+START_DATE = date.fromisoformat('2020-11-20')
 DURATION_MONTHS = 24
 REWARD_DAY = 15
 TO_REINVEST = True
