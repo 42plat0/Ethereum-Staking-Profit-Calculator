@@ -3,15 +3,15 @@ from datetime import date, timedelta
 import csv
 
 # DEFINITIONS
-ETH_INVESTED = 10
-STAKING_REWARD = 7 # %
-START_DATE = date.fromisoformat('2024-10-15')
+ETH_INVESTED = 25
+STAKING_REWARD = 10 # %
+START_DATE = date.fromisoformat('2024-04-15')
 DURATION_MONTHS = 24
-REWARD_DAY = 15
+REWARD_DAY = 23
 TO_REINVEST = True
 
-RATE_CHANGE_DATE = date(2024, 4, 15)
-RATE_CHANGE_TO = 7 # %
+RATE_CHANGE_DATE = date(2025, 4, 15)
+RATE_CHANGE_TO = 8 # %
 
 ###### DONE
 END_DATE = START_DATE + relativedelta(months=DURATION_MONTHS) 
