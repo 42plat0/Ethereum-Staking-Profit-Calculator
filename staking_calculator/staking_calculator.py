@@ -35,19 +35,21 @@ class EthereumStakingCalculator():
 
 
     def __check_init_values(self) -> None | ValueError:
-        if not isinstance(self.eth_stake_amount, (int, float)):
-            raise ValueError("Stake amount should be a number")
+        if not isinstance(self.eth_stake_amount, (int, float)) or self.eth_stake_amount <= 0:
+            raise ValueError("Stake amount should be a positive number")
         
-        elif not isinstance(self.stake_reward, (int, float)):
-            raise ValueError("Stake reward should be a number")
+        # TODO
+        # Would be good change to check if reward is more than 0  
+        elif not isinstance(self.stake_reward, (int, float)) or self.stake_reward < 0: 
+            raise ValueError("Stake reward should be a positive number")
 
         elif not isinstance(self.start_date, date):
             raise ValueError("Staking start date should be a date")
         
-        elif not isinstance(self.duration_months, int):
-            raise ValueError("Stake duration should be a number (months)")
+        elif not isinstance(self.duration_months, int) or self.duration_months <= 0:
+            raise ValueError("Stake duration should be a positive number (months)")
 
-        elif not isinstance(self.reward_payment_day, int):
+        elif not isinstance(self.reward_payment_day, int) or self.reward_payment_day <= 0:
             raise ValueError("Stake reward payment day should be a number")
 
         elif not isinstance(self.reinvest_reward, bool):
@@ -56,9 +58,11 @@ class EthereumStakingCalculator():
         elif not isinstance(self.rate_change_date, date) and self.rate_change_date is not None:
                 raise ValueError("Rate change date should be a date")
         
-        elif not isinstance(self.new_rate, (int, float)) and self.new_rate is not None:
-            raise ValueError("Changed rate should be a number")
-        
+        elif self.new_rate is not None:
+            if not isinstance(self.new_rate, (int, float)) or self.new_rate < 0:
+                raise ValueError("Changed rate should be a number")
+
+            
         elif self.start_date is not None and self.new_rate is not None:
             if (self.rate_change_date - self.start_date).days < 0:
                 raise ValueError("Rate change date cannot be earlier than starting day of staking")

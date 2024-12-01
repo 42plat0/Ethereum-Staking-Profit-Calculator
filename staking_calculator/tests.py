@@ -8,9 +8,17 @@ class TestCalcInitValues(unittest.TestCase):
         with self.assertRaises(ValueError):
             EthereumStakingCalculator("10", 7, date(2020, 10, 15), 24, 15, True)
     
+    def test_amount_not_positive(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(-10, 7, date(2020, 10, 15), 24, 15, True)
+    
     def test_reward_rate_not_number(self):
         with self.assertRaises(ValueError):
             EthereumStakingCalculator(10, "7", date(2020, 10, 15), 24, 15, True)
+    
+    def test_reward_rate_not_positive(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, -7, date(2020, 10, 15), 24, 15, True)
     
     def test_start_date_not_date(self):
         with self.assertRaises(ValueError):
@@ -20,13 +28,22 @@ class TestCalcInitValues(unittest.TestCase):
         with self.assertRaises(ValueError):
             EthereumStakingCalculator(10, 7, date(2020, 10, 15), "24", 15, True)
     
+    def test_duration_not_positive_number(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), -24, 15, True)
+
     def test_reward_day_not_number(self):
         with self.assertRaises(ValueError):
             EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, "15", True)
-    
+
+    def test_reward_day_not_positive_number(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, -15, True)
+
     def test_reinvest_not_bool(self):
         with self.assertRaises(ValueError):
             EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 15, "True")
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 15, None)
 
     def test_rate_change_not_date(self):
         with self.assertRaises(ValueError):
@@ -34,7 +51,11 @@ class TestCalcInitValues(unittest.TestCase):
     
     def test_changed_rate_not_number(self):
         with self.assertRaises(ValueError):
-            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 15, date(2020, 10, 15), "1")
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 15, True, date(2020, 12, 15), "1")
+  
+    def test_changed_rate_not_positive_number(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 15, True, date(2020, 12, 15), -1)
     
     def test_rate_change_earlier_than_start(self):
         with self.assertRaises(ValueError):
