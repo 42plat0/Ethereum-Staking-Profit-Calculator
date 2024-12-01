@@ -3,15 +3,15 @@ from datetime import date, timedelta
 import csv
 
 # DEFINITIONS
-ETH_INVESTED = 25
-STAKING_REWARD = 0 # %
-START_DATE = date.fromisoformat('2024-03-15')
-DURATION_MONTHS = 25
-REWARD_DAY = 23
+ETH_INVESTED = 10
+STAKING_REWARD = 7 # %
+START_DATE = date.fromisoformat('2024-10-15')
+DURATION_MONTHS = 24
+REWARD_DAY = 15
 TO_REINVEST = True
 
 RATE_CHANGE_DATE = date(2024, 4, 15)
-RATE_CHANGE_TO = 10 # %
+RATE_CHANGE_TO = 7 # %
 
 ###### DONE
 END_DATE = START_DATE + relativedelta(months=DURATION_MONTHS) 
@@ -102,20 +102,20 @@ while True:
 
 file_path = "record_files/data_not_obj.csv"
 
-# with open(file_path, "w", newline="", encoding="utf-8") as output_file:
-#     csv_separator = ","
+with open(file_path, "w", newline="", encoding="utf-8") as output_file:
+    csv_separator = ","
 
-#     header = rewards_list[0].keys()
+    header = rewards_list[0].keys()
     
-#     writer = csv.writer(output_file, delimiter=csv_separator)
-#     # Write separator to properly display data
-#     writer.writerow([f"sep={csv_separator}"])
+    writer = csv.writer(output_file, delimiter=csv_separator)
+    # Write separator to properly display data
+    writer.writerow([f"sep={csv_separator}"])
 
-#     writer.writerow(header)
+    writer.writerow(header)
 
-#     # Loop through records to get their values associated with keys
-#     for i in range(len(rewards_list)):
-#         writer.writerow(rewards_list[i].values())
+    # Loop through records to get their values associated with keys
+    for i in range(len(rewards_list)):
+        writer.writerow(rewards_list[i].values())
 
 
 
