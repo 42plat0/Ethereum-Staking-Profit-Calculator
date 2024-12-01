@@ -2,6 +2,44 @@ import unittest
 from datetime import date 
 from staking_calculator import EthereumStakingCalculator
 
+
+class TestCalcInitValues(unittest.TestCase):
+    def test_amount_not_number(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator("10", 7, date(2020, 10, 15), 24, 15, True)
+    
+    def test_reward_rate_not_number(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, "7", date(2020, 10, 15), 24, 15, True)
+    
+    def test_start_date_not_date(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, "2024-12-3", 24, 15, True)
+    
+    def test_duration_not_number(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), "24", 15, True)
+    
+    def test_reward_day_not_number(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, "15", True)
+    
+    def test_reinvest_not_bool(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 15, "True")
+
+    def test_rate_change_not_date(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 15, True, "2024-12-3")
+    
+    def test_changed_rate_not_number(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 15, date(2020, 10, 15), "1")
+    
+    def test_rate_change_earlier_than_start(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 15, date(2020, 9, 15), 1)
+
 class TestRewardLog(unittest.TestCase):
 
     def test_reward_start_days_match(self):
@@ -95,6 +133,8 @@ class TestRewardLog(unittest.TestCase):
         self.assertEqual(inv_amount_sum, 687.70612, "Investment Amount Should be 687.70612")
         self.assertEqual(round(curr_month_rew_sum, 6), 5.510171, "Current Month Reward Amount should be 5.510171")
         self.assertEqual(total_rew_sum, 68.216292, "Should be 68.216292")
+
+
 
 if __name__ == "__main__":
     unittest.main()

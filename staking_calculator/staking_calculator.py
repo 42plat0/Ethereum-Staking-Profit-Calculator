@@ -6,24 +6,26 @@ from numbers import Number
 class EthereumStakingCalculator():
 
     def __init__(self, eth_amount: Number, 
-                 reward_prc: Number, 
+                 reward_rate_prc: Number, 
                  start_date: date, 
                  duration_months: int, 
                  reward_payment_day: int, 
                  reinvest_reward: bool,
-                 rate_change = None,
-                 new_rate = None) -> None:
+                 rate_change_date:date = None,
+                 new_rate_prc:Number = None) -> None:
         
         self.eth_stake_amount = eth_amount
-        self.stake_reward_prc = reward_prc
+        self.stake_reward = reward_rate_prc
         self.start_date = start_date
         self.duration_months = duration_months
         self.reward_payment_day = reward_payment_day
         self.reinvest_reward = reinvest_reward
 
-        self.rate_change_date = rate_change if rate_change is not None else None
-        self.new_rate = new_rate if new_rate is not None else None
+        self.rate_change_date = rate_change_date if rate_change_date is not None else None
+        self.new_rate = new_rate_prc if new_rate_prc is not None else None
 
+        
+        self.__check_init_values()
         self.__set_end_date()
         self.__set_active_date()
         self.__set_reward_tracking()
@@ -31,9 +33,36 @@ class EthereumStakingCalculator():
 
         self.__calculate_profit_schedule()
 
-    def __set_rate_change(self) -> None:
-        print(self.rate_change_date)
-        print(self.new_rate)
+
+    def __check_init_values(self) -> None | ValueError:
+        if not isinstance(self.eth_stake_amount, (int, float)):
+            raise ValueError("Stake amount should be a number")
+        
+        elif not isinstance(self.stake_reward, (int, float)):
+            raise ValueError("Stake reward should be a number")
+
+        elif not isinstance(self.start_date, date):
+            raise ValueError("Staking start date should be a date")
+        
+        elif not isinstance(self.duration_months, int):
+            raise ValueError("Stake duration should be a number (months)")
+
+        elif not isinstance(self.reward_payment_day, int):
+            raise ValueError("Stake reward payment day should be a number")
+
+        elif not isinstance(self.reinvest_reward, bool):
+            raise ValueError("Reinvest reward should be a boolean value")
+        
+        elif not isinstance(self.rate_change_date, date) and self.rate_change_date is not None:
+                raise ValueError("Rate change date should be a date")
+        
+        elif not isinstance(self.new_rate, (int, float)) and self.new_rate is not None:
+            raise ValueError("Changed rate should be a number")
+        
+        elif self.start_date is not None and self.new_rate is not None:
+            if (self.rate_change_date - self.start_date).days < 0:
+                raise ValueError("Rate change date cannot be earlier than starting day of staking")
+
 
 
     def __set_reward_tracking(self) -> None:
@@ -41,7 +70,7 @@ class EthereumStakingCalculator():
         self.reward_amount, self.total_reward_amount = (0, 0)
 
     def __set_daily_reward_rate(self) -> None:
-        self.daily_reward_rate = (self.stake_reward_prc / 100) / 365 * self.eth_stake_amount
+        self.daily_reward_rate = (self.stake_reward / 100) / 365 * self.eth_stake_amount
 
     def __set_end_date(self) -> None:
         self.end_date = self.start_date + relativedelta(months=self.duration_months)
@@ -93,7 +122,7 @@ class EthereumStakingCalculator():
                 "Investment Amount": round(self.eth_stake_amount, 6),
                 "Current Month Reward Amount": round(reward_amount, 6),
                 "Total Reward Amount To Date": round(self.total_reward_amount, 6),
-                "Staking Reward Rate": f"{self.stake_reward_prc:.2f}%"
+                "Staking Reward Rate": f"{self.stake_reward:.2f}%"
             }
 
     def __calculate_profit_schedule(self) -> None:
@@ -119,7 +148,7 @@ class EthereumStakingCalculator():
                     self.reward_amount = self.daily_reward_rate * old_rate_days
 
                     # Change rate to a new one and apply reward with new rate till reward payment day
-                    self.stake_reward_prc = self.new_rate
+                    self.stake_reward = self.new_rate
 
                     # We have to recalculate daily reward rate because reward percentage changed
                     # And also rate is changed for other stakes too
