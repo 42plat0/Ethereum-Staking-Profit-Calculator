@@ -1,17 +1,28 @@
 from dateutil.relativedelta import relativedelta
 from datetime import date, timedelta
-import csv
 
 from numbers import Number
 
 class EthereumStakingCalculator():
-    def __init__(self, eth_stake_amount: Number, stake_reward_prc: Number, start_date: date, duration_months: int, reward_payment_day: int, reinvest_reward: bool) -> None:
-        self.eth_stake_amount = eth_stake_amount
-        self.stake_reward_prc = stake_reward_prc / 100
+
+    def __init__(self, eth_amount: Number, 
+                 reward_prc: Number, 
+                 start_date: date, 
+                 duration_months: int, 
+                 reward_payment_day: int, 
+                 reinvest_reward: bool,
+                 rate_change = None,
+                 new_rate = None) -> None:
+        
+        self.eth_stake_amount = eth_amount
+        self.stake_reward_prc = reward_prc
         self.start_date = start_date
         self.duration_months = duration_months
         self.reward_payment_day = reward_payment_day
         self.reinvest_reward = reinvest_reward
+
+        self.rate_change_date = rate_change if rate_change is not None else None
+        self.new_rate = new_rate if new_rate is not None else None
 
         self.__set_end_date()
         self.__set_active_date()
@@ -20,12 +31,17 @@ class EthereumStakingCalculator():
 
         self.__calculate_profit_schedule()
 
+    def __set_rate_change(self) -> None:
+        print(self.rate_change_date)
+        print(self.new_rate)
+
+
     def __set_reward_tracking(self) -> None:
         self.reward_records = []
         self.reward_amount, self.total_reward_amount = (0, 0)
 
     def __set_daily_reward_rate(self) -> None:
-        self.daily_reward_rate = (self.stake_reward_prc) / 365 * self.eth_stake_amount
+        self.daily_reward_rate = (self.stake_reward_prc / 100) / 365 * self.eth_stake_amount
 
     def __set_end_date(self) -> None:
         self.end_date = self.start_date + relativedelta(months=self.duration_months)
@@ -62,6 +78,12 @@ class EthereumStakingCalculator():
         # Days till reward payment day is less than a month = final staking period
         return (self.end_date - self.active_date).days < 28
 
+    def __get_old_rate_days(self) -> int:
+        return (self.rate_change_date - self.active_date).days
+
+    def __is_rate_change_date_near(self) -> bool:
+        return 0 <= (self.rate_change_date - self.active_date).days < 28
+
     def __get_reward_record(self, current_line: int, reward_amount: Number) -> dict:
         # Create dict for each reward payout
         # To avoid key/value count misallignment if we stored keys and values in separate lists
@@ -81,25 +103,44 @@ class EthereumStakingCalculator():
             
             if self.active_date == self.end_date:
                 break
-
+            
             if self.__is_final_staking_period():
                 self.__adjust_reward_payment_days()
+            
+            self.reward_amount = self.daily_reward_rate * self.days_to_next_reward_payment
 
-            reward_amount = self.daily_reward_rate * self.days_to_next_reward_payment
+            if self.rate_change_date and self.new_rate:
+                # Add reward amounts of old and new rates 
+                # Old rate * days till new rate change date + new rate * days till reward day
+                if self.__is_rate_change_date_near():
+                    old_rate_days = self.__get_old_rate_days()
 
-            self.total_reward_amount += reward_amount
+                    # Calculate reward amount for days that old rate still applies
+                    self.reward_amount = self.daily_reward_rate * old_rate_days
+
+                    # Change rate to a new one and apply reward with new rate till reward payment day
+                    self.stake_reward_prc = self.new_rate
+
+                    # We have to recalculate daily reward rate because reward percentage changed
+                    # And also rate is changed for other stakes too
+                    self.__set_daily_reward_rate()
+
+                    # Add reward amount with new rate applied
+                    self.reward_amount += self.daily_reward_rate * (self.days_to_next_reward_payment - old_rate_days)
+
+            self.total_reward_amount += self.reward_amount
 
             # Change active date to upcoming reward date 
             # Because we already calculated rewards for current date
             self.active_date += timedelta(days=self.days_to_next_reward_payment)
 
-            reward = self.__get_reward_record(current_line, reward_amount)
+            reward = self.__get_reward_record(current_line, self.reward_amount)
 
             # Save records which later will be written to CSV
             self.reward_records.append(reward)
             
             if self.reinvest_reward:
-                self.eth_stake_amount += reward_amount
+                self.eth_stake_amount += self.reward_amount
                 
                 # Update daily reward rate on each iteration
                 # Because it changes when reinvesting the reward
@@ -110,41 +151,3 @@ class EthereumStakingCalculator():
     def get_staking_log(self) -> list[dict]:
         return self.reward_records
 
-ETH_INVESTED = 10
-STAKING_REWARD = 7 # %
-START_DATE = date.fromisoformat('2020-11-20')
-DURATION_MONTHS = 24
-REWARD_DAY = 15
-TO_REINVEST = True
-
-staker = EthereumStakingCalculator(ETH_INVESTED, STAKING_REWARD, START_DATE, DURATION_MONTHS, REWARD_DAY, TO_REINVEST)
-rewards_list = staker.get_staking_log()
-
-
-file_path = "data.csv"
-
-with open(file_path, "w", newline="", encoding="utf-8") as output_file:
-    csv_separator = ","
-
-    header = rewards_list[0].keys()
-    
-    writer = csv.writer(output_file, delimiter=csv_separator)
-    # Write separator to properly display data
-    writer.writerow([f"sep={csv_separator}"])
-
-    writer.writerow(header)
-
-    # Loop through records to get their values associated with keys
-    for i in range(len(rewards_list)):
-        writer.writerow(rewards_list[i].values())
-
-
-
-## TODO ###
-# Finish MAIN TASK
-# Add bonus task 1
-    # The input data from is the same, but starting from 2025-04-15 cryptocurrency exchange decided that yearly rewardTask 1 rates will be lowered to 8% from initial 10%
-# Add tests
-# Write a program that allows entering input data described above;
-# Add documentation on how to use it
-# Try on different OS'es
