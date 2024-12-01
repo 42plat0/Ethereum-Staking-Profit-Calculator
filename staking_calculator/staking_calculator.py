@@ -2,7 +2,6 @@ from dateutil.relativedelta import relativedelta
 from datetime import date, timedelta
 import csv
 
-from typing import TypeVar
 from numbers import Number
 
 class EthereumStakingCalculator():
@@ -138,3 +137,14 @@ with open(file_path, "w", newline="", encoding="utf-8") as output_file:
     # Loop through records to get their values associated with keys
     for i in range(len(rewards_list)):
         writer.writerow(rewards_list[i].values())
+
+
+
+## TODO ###
+# Finish MAIN TASK
+# Add bonus task 1
+    # The input data from is the same, but starting from 2025-04-15 cryptocurrency exchange decided that yearly rewardTask 1 rates will be lowered to 8% from initial 10%
+# Add tests
+# Write a program that allows entering input data described above;
+# Add documentation on how to use it
+# Try on different OS'es
