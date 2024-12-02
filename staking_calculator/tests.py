@@ -188,6 +188,31 @@ class TestRewardLog(unittest.TestCase):
         )
         self.assertEqual(total_rew_sum, 68.216292, "Should be 68.216292")
 
+    def test_rate_payday_higher_than_months_max(self):
+        staker = EthereumStakingCalculator(
+            10, 7, date(2020, 10, 15), 24, 31, False
+        )
+        log = staker.get_staking_log()
+
+        total_rew_sum = float(log[len(log) - 1]["Total Reward Amount To Date"])
+        
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # DELETE TODO
+        days = sum(staker.get_days())
+        total_days_of_payout = (staker.end_date - staker.start_date).days
+
+        self.assertEqual(
+            round(total_rew_sum, 6),
+            1.4,
+            "Current Month Reward Amount should be 1.4",
+        )
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # DELETE TODO
+        self.assertEqual(
+            days,
+            total_days_of_payout,
+            f"should be {total_days_of_payout}"
+        )
 
 if __name__ == "__main__":
     unittest.main()

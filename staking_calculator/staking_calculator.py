@@ -29,6 +29,10 @@ class EthereumStakingCalculator:
             rate_change_date if rate_change_date is not None else None
         )
         self.new_rate = new_rate_prc if new_rate_prc is not None else None
+        
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # del before shipping
+        self.days_to_next_reward_payment_list = []
 
         self.__check_init_values()
         self.__set_end_date()
@@ -132,8 +136,6 @@ class EthereumStakingCalculator:
                     payment_day -= 1
 
             self.reward_upcoming_date = date(year, month, payment_day)
-            
-
 
         self.days_to_next_reward_payment = (
             self.reward_upcoming_date - self.active_date
@@ -143,7 +145,7 @@ class EthereumStakingCalculator:
         # Adjust next reward days when start date day is not on reward day
         # Because we'd run past staking end day
         # e.g. start date day is higher/lower than reward day
-        self.days_to_next_reward_payment = (self.end_date - self.active_date).days - 1 # why -1 tho? TODO
+        self.days_to_next_reward_payment = (self.end_date - self.active_date).days # why -1 tho?
 
     def __is_final_staking_period(self) -> bool:
         # Days till reward payment day is less than a month = final staking period
@@ -175,7 +177,7 @@ class EthereumStakingCalculator:
 
     def __calculate_profit_schedule(self) -> None:
         current_line = 1
-        o = 0
+
         while True:
             self.__set_days_to_next_reward_payment()
 
@@ -185,6 +187,7 @@ class EthereumStakingCalculator:
             if self.__is_final_staking_period():
                 self.__adjust_reward_payment_days()
 
+            # Account for a single day loss when staking reward payment day is higher than max day of some months (eg. Feb, etc..)
             if self.reward_payment_day > self.reward_upcoming_date.day:
                 self.days_to_next_reward_payment += 1
 
@@ -218,10 +221,12 @@ class EthereumStakingCalculator:
             # Change active date to upcoming reward date
             # Because we already calculated rewards for current date
             self.active_date += timedelta(days=self.days_to_next_reward_payment)
-                
+            
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            # DELETE BEFORE SHIPPING TODO
+            self.days_to_next_reward_payment_list.append(self.days_to_next_reward_payment)
+
             reward = self.__get_reward_record(current_line, self.reward_amount)
-
-
 
 
             # Save records which later will be written to CSV
@@ -236,5 +241,8 @@ class EthereumStakingCalculator:
 
             current_line += 1
 
+    def get_days(self):
+        return self.days_to_next_reward_payment_list
+    
     def get_staking_log(self) -> list[dict]:
         return self.reward_records
