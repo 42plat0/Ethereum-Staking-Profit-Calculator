@@ -38,7 +38,7 @@ class TestCalcInitValues(unittest.TestCase):
     
     def test_reward_day_impossible(self):
         with self.assertRaises(ValueError):
-            EthereumStakingCalculator(10, 7, date(2024, 11, 10), 24, 32, True)
+            EthereumStakingCalculator(10, 7, date(2024, 11, 10), 24, 31, True)
             EthereumStakingCalculator(10, 7, date(2024, 11, 10), 24, 0, True)
             EthereumStakingCalculator(10, 7, date(2024, 11, 10), 24, -10, True)
             EthereumStakingCalculator(10, 7, date(2024, 11, 10), 24, 10.3, True)
