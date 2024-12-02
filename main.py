@@ -2,8 +2,7 @@ from staking_calculator.staking_calculator import EthereumStakingCalculator
 from helpers.helpers import save_csv
 from datetime import date
 
-from argparse import ArgumentParser
-import json
+from argparse import ArgumentParser, MetavarTypeHelpFormatter
 
 task_defs = {
     "example_task": {
@@ -102,32 +101,24 @@ task_defs = {
 
 
 if __name__ == "__main__":
-    # save_csv(main_task["file_path"], main_task_reward_log, ",")
-    # save_csv(bonus_task["file_path"], bonus_task_reward_log, ",")
-    # save_csv(example_task["file_path"], example_task_reward_log, ",")
-
-    # parser = ArgumentParser(
-    #     prog="main",
-    #     description="Pure Python command-line RSS reader.",
-    # )
     parser = ArgumentParser("main", description="Ethereum Staking Profit Calculator")
 
-    parser.add_argument("Amount", help="- initial investment amount of ETH", type=float)
+    parser.add_argument("Amount", help=" initial investment amount of ETH", type=float)
     parser.add_argument(
-        "Rate", help="- yearly staking reward rate in percentage ", type=float
+        "Rate", help=" yearly staking reward rate in percentage ", type=float
     )
-    parser.add_argument("Start_date", help="- staking start date in ISO (2024-12-1)")
-    parser.add_argument("Duration", help="- staking duration in months", type=int)
-    parser.add_argument("Payment", help="- staking reward payment day", type=int)
+    parser.add_argument("Start_date", help=" staking start date in ISO (2024-12-1)")
+    parser.add_argument("Duration", help=" staking duration in months", type=int)
+    parser.add_argument("Payment", help=" staking reward payment day", type=int)
     parser.add_argument(
         "Reinvest",
-        help="- if reinvest staking rewards on receiving",
+        help=" if reinvest staking rewards on receiving",
         type=int,
         choices=[1, 0],
     )
 
     parser.add_argument(
-        "--rc", help="- staking reward rate change date in ISO and new rate", nargs=2
+        "-rc", help=" CHANGED_RATE_DAY in ISO, CHANGED_RATE", nargs=2
     )
 
     args = parser.parse_args()
@@ -157,9 +148,7 @@ if __name__ == "__main__":
 
 
 ## TODO ###
-# Finish MAIN TASK
-
-# Add tests
-# Write a program that allows entering input data described above;
+# Add file name generation (staking_calc_{date}_(1))
 # Add documentation on how to use it
 # Try on different OS'es
+

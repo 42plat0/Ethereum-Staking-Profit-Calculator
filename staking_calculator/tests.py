@@ -78,13 +78,15 @@ class TestRewardLog(unittest.TestCase):
         inv_amount_sum, curr_month_rew_sum, total_rew_sum = 0, 0, 0
 
         for i in range(0, len(log)):
-            inv_amount_sum += log[i]["Investment Amount"]
-            curr_month_rew_sum += log[i]["Current Month Reward Amount"]
-            total_rew_sum += log[i]["Total Reward Amount To Date"]
+            inv_amount_sum += float(log[i]["Investment Amount"])
+            curr_month_rew_sum += float(log[i]["Current Month Reward Amount"])
+            total_rew_sum += float(log[i]["Total Reward Amount To Date"])
 
         self.assertEqual(len(log), 24, "Should be 24 records")
         self.assertEqual(
-            inv_amount_sum, 256.807995, "Investment Amount Should be 256.807995"
+            round(inv_amount_sum, 6),
+            256.807995,
+            "Investment Amount Should be 256.807995",
         )
         self.assertEqual(
             round(curr_month_rew_sum, 6),
@@ -104,13 +106,15 @@ class TestRewardLog(unittest.TestCase):
         inv_amount_sum, curr_month_rew_sum, total_rew_sum = 0, 0, 0
 
         for i in range(0, len(log)):
-            inv_amount_sum += log[i]["Investment Amount"]
-            curr_month_rew_sum += round(log[i]["Current Month Reward Amount"], 6)
-            total_rew_sum += log[i]["Total Reward Amount To Date"]
+            inv_amount_sum += float(log[i]["Investment Amount"])
+            curr_month_rew_sum += float(log[i]["Current Month Reward Amount"])
+            total_rew_sum += float(log[i]["Total Reward Amount To Date"])
 
         self.assertEqual(len(log), 25, "Should be 25 records")
         self.assertEqual(
-            inv_amount_sum, 267.025671, "Investment Amount Should be 267.025671"
+            round(inv_amount_sum, 6),
+            267.025671,
+            "Investment Amount Should be 267.025671",
         )
         self.assertEqual(
             round(curr_month_rew_sum, 6),
@@ -130,9 +134,9 @@ class TestRewardLog(unittest.TestCase):
         inv_amount_sum, curr_month_rew_sum, total_rew_sum = 0, 0, 0
 
         for i in range(0, len(log)):
-            inv_amount_sum += log[i]["Investment Amount"]
-            curr_month_rew_sum += round(log[i]["Current Month Reward Amount"], 6)
-            total_rew_sum += log[i]["Total Reward Amount To Date"]
+            inv_amount_sum += float(log[i]["Investment Amount"])
+            curr_month_rew_sum += float(log[i]["Current Month Reward Amount"])
+            total_rew_sum += float(log[i]["Total Reward Amount To Date"])
 
         self.assertEqual(len(log), 25, "Should be 25 records")
         self.assertEqual(
@@ -162,13 +166,13 @@ class TestRewardLog(unittest.TestCase):
 
         # sumos turi sutapti ismetant pirmo nario skaicius is rate change reward logo
         for i in range(1, len(log)):
-            inv_amount_sum += log[i]["Investment Amount"]
-            curr_month_rew_sum += log[i]["Current Month Reward Amount"]
-            total_rew_sum += log[i]["Total Reward Amount To Date"]
+            inv_amount_sum += float(log[i]["Investment Amount"])
+            curr_month_rew_sum += float(log[i]["Current Month Reward Amount"])
+            total_rew_sum += float(log[i]["Total Reward Amount To Date"])
 
         self.assertEqual(len(log), 26, "Should be 26")
         self.assertEqual(
-            inv_amount_sum, 687.70612, "Investment Amount Should be 687.70612"
+            round(inv_amount_sum, 6), 687.70612, "Investment Amount Should be 687.70612"
         )
         self.assertEqual(
             round(curr_month_rew_sum, 6),

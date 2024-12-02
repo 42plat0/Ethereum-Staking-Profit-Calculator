@@ -135,9 +135,9 @@ class EthereumStakingCalculator:
         return {
             "Line #": current_line,
             "Reward Date": self.active_date,
-            "Investment Amount": round(self.eth_stake_amount, 6),
-            "Current Month Reward Amount": round(reward_amount, 6),
-            "Total Reward Amount To Date": round(self.total_reward_amount, 6),
+            "Investment Amount": f"{self.eth_stake_amount: .6f}",
+            "Current Month Reward Amount": f"{reward_amount: .6f}",
+            "Total Reward Amount To Date": f"{self.total_reward_amount: .6f}",
             "Staking Reward Rate": f"{self.stake_reward:.2f}%",
         }
 
