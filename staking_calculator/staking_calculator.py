@@ -198,7 +198,6 @@ class EthereumStakingCalculator:
             if self.__is_final_staking_period():
                 self.__adjust_reward_payment_days()
 
-
             self.reward_amount = (
                 self.daily_reward_rate * self.days_to_next_reward_payment
             )
@@ -231,8 +230,10 @@ class EthereumStakingCalculator:
             self.active_date += timedelta(days=self.days_to_next_reward_payment)
 
             # When last staking period, change upcoming date because it is stored in reward record
-            if self.__is_final_staking_period():
-                self.reward_upcoming_date = self.active_date # To not run past last day since it's the last period
+            if self.__is_final_staking_period() or (self.active_date - self.end_date).days == 0:
+                self.reward_upcoming_date = (
+                    self.active_date
+                )  # To not run past last day since it's the last period
 
             reward = self.__get_reward_record(current_line, self.reward_amount)
 

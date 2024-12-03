@@ -116,6 +116,12 @@ class TestRewardLog(unittest.TestCase):
             "Total Reward Amount To Date should be 18.306051",
         )
 
+        self.assertEqual(
+            log[len(log) - 1]["Reward Date"].day,
+            15,
+            "Should be the 15th"
+        )
+
     def test_start_day_before_reward_day(self):
         staker = EthereumStakingCalculator(10, 7, date(2020, 11, 10), 24, 15, True)
         log = staker.get_staking_log()
@@ -142,6 +148,11 @@ class TestRewardLog(unittest.TestCase):
             round(total_rew_sum, 6),
             18.523782,
             "Total Reward Amount To Date should be 18.523782",
+        )
+        self.assertEqual(
+            log[len(log) - 1]["Reward Date"].day,
+            10,
+            "Should be the 10th"
         )
 
     def test_start_day_after_reward_day(self):
@@ -170,6 +181,12 @@ class TestRewardLog(unittest.TestCase):
             round(total_rew_sum, 6),
             19.557937,
             "Total Reward Amount To Date should be 19.557937",
+        )
+
+        self.assertEqual(
+            log[len(log) - 1]["Reward Date"].day,
+            20,
+            "Should be the 20th"
         )
 
     def test_rate_change_rewards(self):
