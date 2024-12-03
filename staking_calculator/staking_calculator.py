@@ -29,10 +29,6 @@ class EthereumStakingCalculator:
             rate_change_date if rate_change_date is not None else None
         )
         self.new_rate = new_rate_prc if new_rate_prc is not None else None
-        
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # del before shipping
-        self.days_to_next_reward_payment_list = []
 
         self.__check_init_values()
         self.__set_end_date()
@@ -49,10 +45,15 @@ class EthereumStakingCalculator:
         ):
             raise ValueError("Stake amount should be a positive number")
 
-        # TODO
-        # Would be good change to check if reward is more than 0
-        elif not isinstance(self.stake_reward, (int, float)) or self.stake_reward < 0:
-            raise ValueError("Stake reward should be a positive number")
+        elif (
+            not isinstance(self.stake_reward, (int, float))
+            or self.stake_reward < 0
+            or self.stake_reward == 0
+            and self.new_rate is None
+        ):
+            raise ValueError(
+                "Stake reward should be a positive number or provide rate change if staking award is 0"
+            )
 
         elif not isinstance(self.start_date, date):
             raise ValueError("Staking start date should be a date")
@@ -79,8 +80,15 @@ class EthereumStakingCalculator:
             raise ValueError("Rate change date should be a date")
 
         elif self.new_rate is not None:
-            if not isinstance(self.new_rate, (int, float)) or self.new_rate < 0:
-                raise ValueError("Changed rate should be a number")
+            if (
+                not isinstance(self.new_rate, (int, float))
+                or self.new_rate < 0
+                or self.stake_reward == 0
+                and self.new_rate == 0
+            ):
+                raise ValueError(
+                    "Changed rate should be a number or more than 0 if staking award is 0"
+                )
 
         elif self.start_date is not None and self.new_rate is not None:
             if (self.rate_change_date - self.start_date).days < 0:
@@ -108,33 +116,38 @@ class EthereumStakingCalculator:
         month = self.active_date.month
 
         # Days till reward when reward is following year
-        if self.active_date.month == 12 and not self.active_date.day < self.reward_payment_day:
+        if (
+            self.active_date.month == 12
+            and not self.active_date.day < self.reward_payment_day
+        ):
             year += 1
             month = 1
         # Days till next month on same year
         elif not self.active_date.day < self.reward_payment_day:
             month += 1
 
-        ######
-        ### problem is that it gets next reward payment day on same month even with max day limiting
-        ### but we dont go to next months pay day!
-        ### PROBLEM WE'RE SOLVING:
-        ### what if reward day is higher than max active month day?
-        try: 
+        ### What if reward day is higher than max active month day?
+        try:
             self.reward_upcoming_date = date(year, month, self.reward_payment_day)
-        except ValueError: # Means that selected month has less days than reward is paid on
+        except (
+            ValueError
+        ):  # Means that selected month has less days than reward is paid on
             payment_day = self.reward_payment_day - 1
-            
+
             # Get active month last day
             # To generate reward when payment day is higher than active month's last day
             active_month_days = (date(year, month + 1, 1) - timedelta(days=1)).day
+
+            # Get payment day when active month has more days than payment is paid on
             if active_month_days > payment_day:
                 while active_month_days > payment_day:
                     payment_day -= 1
+            # Get payment day when active month has less days than payment is paid on
             elif active_month_days < payment_day:
                 while active_month_days < payment_day:
                     payment_day -= 1
 
+            # Set newly generated reward date based on active months max day
             self.reward_upcoming_date = date(year, month, payment_day)
 
         self.days_to_next_reward_payment = (
@@ -145,11 +158,11 @@ class EthereumStakingCalculator:
         # Adjust next reward days when start date day is not on reward day
         # Because we'd run past staking end day
         # e.g. start date day is higher/lower than reward day
-        self.days_to_next_reward_payment = (self.end_date - self.active_date).days # why -1 tho?
+        self.days_to_next_reward_payment = (self.end_date - self.active_date).days
 
     def __is_final_staking_period(self) -> bool:
         # Days till reward payment day is less than a month = final staking period
-        return (self.end_date - self.active_date).days < 28
+        return 0 < (self.end_date - self.active_date).days < 28
 
     def __get_old_rate_days(self) -> int:
         return (self.rate_change_date - self.active_date).days
@@ -167,12 +180,6 @@ class EthereumStakingCalculator:
             "Current Month Reward Amount": f"{reward_amount: .6f}",
             "Total Reward Amount To Date": f"{self.total_reward_amount: .6f}",
             "Staking Reward Rate": f"{self.stake_reward:.2f}%",
-            "Days of reward": self.days_to_next_reward_payment,
-            "daily rate": self.daily_reward_rate,
-            "result": f"{ self.days_to_next_reward_payment * self.daily_reward_rate:.6f}",
-            "total_days": (self.end_date - self.start_date).days,
-            "daily_rate": self.daily_reward_rate,
-            "total_amount_should_be": f"{ (self.end_date - self.start_date).days * self.daily_reward_rate:.6f}"
         }
 
     def __calculate_profit_schedule(self) -> None:
@@ -184,12 +191,13 @@ class EthereumStakingCalculator:
             if self.active_date >= self.end_date:
                 break
 
-            if self.__is_final_staking_period():
-                self.__adjust_reward_payment_days()
-
             # Account for a single day loss when staking reward payment day is higher than max day of some months (eg. Feb, etc..)
             if self.reward_payment_day > self.reward_upcoming_date.day:
                 self.days_to_next_reward_payment += 1
+
+            if self.__is_final_staking_period():
+                self.__adjust_reward_payment_days()
+
 
             self.reward_amount = (
                 self.daily_reward_rate * self.days_to_next_reward_payment
@@ -221,13 +229,12 @@ class EthereumStakingCalculator:
             # Change active date to upcoming reward date
             # Because we already calculated rewards for current date
             self.active_date += timedelta(days=self.days_to_next_reward_payment)
-            
-            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            # DELETE BEFORE SHIPPING TODO
-            self.days_to_next_reward_payment_list.append(self.days_to_next_reward_payment)
+
+            # When last staking period, change upcoming date because it is stored in reward record
+            if self.__is_final_staking_period():
+                self.reward_upcoming_date = self.active_date # To not run past last day since it's the last period
 
             reward = self.__get_reward_record(current_line, self.reward_amount)
-
 
             # Save records which later will be written to CSV
             self.reward_records.append(reward)
@@ -241,8 +248,5 @@ class EthereumStakingCalculator:
 
             current_line += 1
 
-    def get_days(self):
-        return self.days_to_next_reward_payment_list
-    
     def get_staking_log(self) -> list[dict]:
         return self.reward_records

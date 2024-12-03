@@ -20,6 +20,16 @@ class TestCalcInitValues(unittest.TestCase):
         with self.assertRaises(ValueError):
             EthereumStakingCalculator(10, -7, date(2020, 10, 15), 24, 15, True)
 
+    def test_reward_rate_is_zero_no_changed_rate(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(10, 0, date(2020, 10, 15), 24, 15, True)
+
+    def test_reward_rate_and_changed_rate_is_zero(self):
+        with self.assertRaises(ValueError):
+            EthereumStakingCalculator(
+                10, 0, date(2020, 10, 15), 24, 15, True, date(2020, 9, 15), 0
+            )
+
     def test_start_date_not_date(self):
         with self.assertRaises(ValueError):
             EthereumStakingCalculator(10, 7, "2024-12-3", 24, 15, True)
@@ -35,7 +45,7 @@ class TestCalcInitValues(unittest.TestCase):
     def test_reward_day_not_number(self):
         with self.assertRaises(ValueError):
             EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, "15", True)
-    
+
     def test_reward_day_impossible(self):
         with self.assertRaises(ValueError):
             EthereumStakingCalculator(10, 7, date(2024, 11, 10), 24, 31, True)
@@ -189,30 +199,17 @@ class TestRewardLog(unittest.TestCase):
         self.assertEqual(total_rew_sum, 68.216292, "Should be 68.216292")
 
     def test_rate_payday_higher_than_months_max(self):
-        staker = EthereumStakingCalculator(
-            10, 7, date(2020, 10, 15), 24, 31, False
-        )
+        staker = EthereumStakingCalculator(10, 7, date(2020, 10, 15), 24, 31, False)
         log = staker.get_staking_log()
 
         total_rew_sum = float(log[len(log) - 1]["Total Reward Amount To Date"])
-        
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # DELETE TODO
-        days = sum(staker.get_days())
-        total_days_of_payout = (staker.end_date - staker.start_date).days
 
         self.assertEqual(
             round(total_rew_sum, 6),
             1.4,
             "Current Month Reward Amount should be 1.4",
         )
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # DELETE TODO
-        self.assertEqual(
-            days,
-            total_days_of_payout,
-            f"should be {total_days_of_payout}"
-        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,3 +4,6 @@ __pycache__
 venv
 
 plain_code_v0.py
+main_task.py
+example_task.csv
+stake_input.csv
