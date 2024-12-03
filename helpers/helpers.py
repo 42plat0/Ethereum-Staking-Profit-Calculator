@@ -16,6 +16,8 @@ def save_csv(file_path: str, reward_log: list[dict], separator:str):
             # Loop through records to get their values associated with keys
             for i in range(len(reward_log)):
                 writer.writerow(reward_log[i].values())
+            
+            print(f"Created: {file_path}")
     except PermissionError as e:
         raise PermissionError("Close file before creating a new one or check if directory exists")    
     
