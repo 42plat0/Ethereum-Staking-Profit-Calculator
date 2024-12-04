@@ -24,10 +24,10 @@ def main():
     )
 
     parser.add_argument(
-        "--ratechange", "-rc", help=" CHANGED_RATE_DAY in ISO, CHANGED_RATE", nargs=2
+        "--ratechange", "-rc", help=" define change of rate date (ISO) and new rate", nargs=2
     )
 
-    parser.add_argument("--filename", "-f", help=" filename to save logs in")
+    parser.add_argument("--filename", "-f", help=" specify filename for schedule")
 
     args = parser.parse_args()
 
