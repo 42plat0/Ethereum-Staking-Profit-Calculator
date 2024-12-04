@@ -20,13 +20,16 @@ Project was built for internship entry task which was to write a simplified **Et
 ### UNIX
 1. Clone the repository:
 
-- [Get ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) if there you encounter problem cloning
 
 ```bash
 git clone git@github.com:42plat0/Ethereum-Staking-Profit-Calculator.git
 cd Ethereum-Staking-Profit-Calculator
 ```
-
+- [Get ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) if there you encounter problem cloning
+- Get git 
+```bash
+sudo apt install git
+```
 ### or
 
 - [Download project as ZIP](https://github.com/42plat0/Ethereum-Staking-Profit-Calculator/archive/refs/heads/main.zip)
@@ -185,3 +188,11 @@ Line #,Reward Date,Investment Amount,Current Month Reward Amount,Total Reward Am
 25,2026-04-15, 29.760396, 0.150025, 4.910421,8.00%
 ```
 
+## File Description
+
+- `main.py` contains command-line parser for inputs and is the main file for executing calculator
+- `config.py` contains variables user for saving files - csv separator, save directory path, filename and save path
+- `example.py` contains example code to generate example staking schedule
+- `record_files/` is where csv files are saved and already generated and formated required task files in sub-directory `task`
+- `staking_calculator/` contains class definition of calculator in `staking_calculator.py` and tests in `test.py`
+- `helpers` is a module that provides saving to csv function in `helpers.py`
