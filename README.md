@@ -63,7 +63,7 @@ sudo apt install python3-pip
 git clone git@github.com:42plat0/Ethereum-Staking-Profit-Calculator.git
 cd Ethereum-Staking-Profit-Calculator
 ```
-[Get ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) if there you encounter problem cloning
+- [Get ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) if there you encounter problem cloning
 
 ### or
 
