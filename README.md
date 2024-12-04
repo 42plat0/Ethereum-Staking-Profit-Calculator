@@ -1,8 +1,8 @@
 # Ethereum Staking Profit Calculator
 
-## A fully functional Ethereum Staking Calculator written in Python calculating Ethereum staking rewards and producing staking schedule
+A fully functional Ethereum Staking Calculator written in Python calculating Ethereum staking rewards and producing staking schedule
 
-This project was built for internship entry task which was to write a simplified **Ethereum Staking profit calculator**.
+Project was built for internship entry task which was to write a simplified **Ethereum Staking profit calculator**.
 
 ## Features
 
@@ -13,10 +13,11 @@ This project was built for internship entry task which was to write a simplified
   - Total Reward Amount To Date
   - Staking Reward Rate
 - Ouptut reward schedule in **CSV** file
-- Handles **date overflow** - when reward day doesn't exist in the current month
+- Handle **date overflow** - when reward day doesn't exist in the current month
 
 ## Installing
 
+### UNIX
 1. Clone the repository:
 
 - [Get ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) if there you encounter problem cloning
@@ -46,6 +47,31 @@ pip install -r requirements.txt
 
 ```bash
 sudo apt install python3-pip
+```
+
+### WINDOWS
+
+1. Install [Python](https://www.python.org/ftp/python/3.12.8/python-3.12.8-amd64.exe) and [GIT](https://git-scm.com/downloads/win)
+
+2. Clone repository
+
+
+```bash
+git clone git@github.com:42plat0/Ethereum-Staking-Profit-Calculator.git
+cd Ethereum-Staking-Profit-Calculator
+```
+[Get ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) if there you encounter problem cloning
+
+### or
+
+- [Download project as ZIP](https://github.com/42plat0/Ethereum-Staking-Profit-Calculator/archive/refs/heads/main.zip)
+- Unzip
+- Cd into folder
+
+3. Install dependencies
+
+```bash
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -83,13 +109,12 @@ python example.py
 
 #### Main task
 
-Code
-
+Input
 ```bash
 python main.py 25 10 2024-04-15 24 23 1 -f main_task
 ```
 
-CSV file
+Output
 
 ```csv
 "sep=,"
@@ -121,14 +146,14 @@ Line #,Reward Date,Investment Amount,Current Month Reward Amount,Total Reward Am
 25,2026-04-15, 30.319120, 0.191052, 5.510172,10.00%
 ```
 
-#### Bonus task
-Code
+#### Bonus task with -rc
+Input
 
 ```bash
 python main.py 25 10 2024-04-15 24 23 1 -rc 2025-04-15 8 -f main_task_bonus
 ```
 
-CSV
+Output
 
 ```csv
 "sep=,"
@@ -159,3 +184,4 @@ Line #,Reward Date,Investment Amount,Current Month Reward Amount,Total Reward Am
 24,2026-03-23, 29.578871, 0.181525, 4.760396,8.00%
 25,2026-04-15, 29.760396, 0.150025, 4.910421,8.00%
 ```
+

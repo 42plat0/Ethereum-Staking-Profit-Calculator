@@ -3,7 +3,8 @@ from datetime import date
 # Variables for saving files
 separator = ","
 dir_path = "record_files/"
-input_save_path = dir_path + "stake_input.csv"
+input_filename = "stake_input.csv"
+input_save_path = dir_path + input_filename
 
 # Examples
 example = {
